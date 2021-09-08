@@ -1,18 +1,26 @@
 import csfml
 
+type
+    Point = tuple[x: int, y: int]
+
 const
     BACKGROUND_COLOR = color(30, 30, 40)
     WINDOW_X: cint = 800
     WINDOW_Y: cint = 600
+    BOARD_X = 75
+    BOARD_Y = 50
 
 let
     ctxSettings = ContextSettings(antialiasingLevel: 16)
-    window = newRenderWindow(videoMode(WINDOW_X, WINDOW_Y), "My Window", settings = ctxSettings)
+    window = newRenderWindow(videoMode(WINDOW_X, WINDOW_Y), "Snake", settings = ctxSettings)
+    
 
 window.verticalSyncEnabled = true
 
 var
     event: Event
+    board: array[BOARD_X, array[BOARD_Y, int]]
+    snake: seq[Point]
 
 while window.open:
     if window.pollEvent(event):
