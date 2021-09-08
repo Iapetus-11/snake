@@ -23,7 +23,7 @@ iterator enumerate[T](s: seq[T]): tuple[i: int, v: T] =
 
 proc drawSnake(w: RenderWindow, s: Snake) =
     var vertices = newVertexArray(PrimitiveType.Quads, s.len)
-    
+
     for i, p in enumerate(s):
         vertices[i] = newRectangleShape(vec2(0, 0))
 
