@@ -13,7 +13,7 @@ const
 let
     ctxSettings = ContextSettings(antialiasingLevel: 16)
     window = newRenderWindow(videoMode(WINDOW_X, WINDOW_Y), "Snake", settings = ctxSettings)
-    
+
 
 window.verticalSyncEnabled = true
 
