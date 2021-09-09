@@ -14,7 +14,7 @@ const
     BACKGROUND_COLOR = color(60, 60, 80)
     WALL_COLOR = color(0, 0, 0)
     SNAKE_HEAD_COLOR = color(30, 225, 75)
-    SNAKE_BODY_COLOR = color(20, 200, 50)
+    SNAKE_BODY_COLOR = color(20, 170, 50)
     APPLE_COLOR = color(255, 20, 20)
 
 type
@@ -89,8 +89,7 @@ proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i
     of SnakeDirection.UP: nextPoint = vec2(head.x, head.y-BOARD_PIECE_SIZE)
     of SnakeDirection.RIGHT: nextPoint = vec2(head.x+BOARD_PIECE_SIZE, head.y)
     of SnakeDirection.DOWN: nextPoint = vec2(head.x, head.y+BOARD_PIECE_SIZE)
-    of SnakeDirection.NONE:
-        return (true, apple)
+    of SnakeDirection.NONE: return (true, apple)
 
     if nextPoint != a:
         s.delete(s.high)
@@ -152,6 +151,15 @@ while window.open:
             of KeyCode.Space, KeyCode.P: direction = SnakeDirection.NONE
             else: discard
         else: discard
+
+    if (
+        (direction == SnakeDirection.UP and lastDirection == SnakeDirection.DOWN) or
+        (direction == SnakeDirection.DOWN and lastDirection == SnakeDirection.UP) or
+        (direction == SnakeDirection.LEFT and lastDirection == SnakeDirection.RIGHT) or
+        (direction == SnakeDirection.RIGHT and lastDirection == SnakeDirection.LEFT)
+    ):
+        direction = lastDirection
+
 
     let r = updateGame(snake, direction, lastDirection, apple)
     success = r.success
