@@ -86,12 +86,13 @@ proc randomBoardPosition(): Vector2i =
     )
 
 proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i): tuple[
-        success: bool, apple: Vector2i] =
+        success: bool, apple: Vector2i, scoreDiff: int] =
     let head = s[0]
     var
         nextPoint: Vector2i
         success = false
         apple = a
+        scoreDiff = 0
 
     # figure out what the next point will be based off the head
     case d:
@@ -99,9 +100,11 @@ proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i
     of SnakeDirection.UP: nextPoint = vec2(head.x, head.y-BOARD_PIECE_SIZE)
     of SnakeDirection.RIGHT: nextPoint = vec2(head.x+BOARD_PIECE_SIZE, head.y)
     of SnakeDirection.DOWN: nextPoint = vec2(head.x, head.y+BOARD_PIECE_SIZE)
-    of SnakeDirection.NONE: return (true, apple)
+    of SnakeDirection.NONE: return (true, apple, 0)
 
-    if nextPoint != a:
+    if nextPoint == a:
+        scoreDiff += 1
+    else:
         s.delete(s.high)
 
     success = not (
@@ -126,7 +129,7 @@ proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i
     ):
         apple = randomBoardPosition()
 
-    return (success, apple)
+    return (success, apple, scoreDiff)
 
 
 let
@@ -144,6 +147,7 @@ var
     direction: SnakeDirection
     apple: Vector2i = vec2(snake[0].x - BOARD_PIECE_SIZE * 4, snake[0].y)
     success: bool
+    score = 0
 
 while window.open:
     if window.pollEvent(event):
@@ -176,6 +180,7 @@ while window.open:
     let r = updateGame(snake, direction, lastDirection, apple)
     success = r.success
     apple = r.apple
+    score += r.scoreDiff
 
     window.clear(BACKGROUND_COLOR)
     window.drawGameBorder()
@@ -185,14 +190,14 @@ while window.open:
     lastDirection = direction
 
     if direction == SnakeDirection.NONE:
-        window.title = &"Snake [Score: {snake.len}] PAUSED"
+        window.title = &"Snake [Score: {score}] PAUSED"
         let t = newText("PAUSED", roboto, 30)
         t.position = vec2(WINDOW_X / 2 - t.localBounds.width / 2, 40)
         t.fillColor = color(200, 200, 200)
         window.draw(t)
         t.destroy()
     else:
-        window.title = &"Snake [Score: {snake.len}]"
+        window.title = &"Snake [Score: {score}]"
 
     if not success:
         let t = newText("GAME OVER", roboto, 60)
@@ -205,7 +210,7 @@ while window.open:
     window.display()
 
     if not success:
-        window.title = &"Snake [Score: {snake.len}] GAME OVER"
+        window.title = &"Snake [Score: {score}] GAME OVER"
         sleep(2500)
         window.close()
         break
