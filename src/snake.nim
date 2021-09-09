@@ -1,4 +1,4 @@
-import std/random
+import std/[random, os, strformat]
 import csfml
 
 randomize()
@@ -6,9 +6,11 @@ randomize()
 const
     WINDOW_X: cint = 800
     WINDOW_Y: cint = 600
-    BOARD_X = 800
-    BOARD_Y = 600
-    BOARD_PIECE_SIZE = 10
+    BOARD_PIECE_SIZE = 20
+    # BOARD_X = int(int(WINDOW_X) / BOARD_PIECE_SIZE)
+    # BOARD_Y = int(int(WINDOW_Y) / BOARD_PIECE_SIZE)
+    BOARD_X = int(WINDOW_X) - BOARD_PIECE_SIZE
+    BOARD_Y = int(WINDOW_Y) - BOARD_PIECE_SIZE
     BACKGROUND_COLOR = color(60, 60, 80)
     WALL_COLOR = color(0, 0, 0)
     SNAKE_HEAD_COLOR = color(30, 225, 75)
@@ -17,7 +19,6 @@ const
 
 type
     Snake = seq[Vector2i]
-    Board = array[BOARD_X, array[BOARD_Y, int]]
     SnakeDirection = enum
         LEFT, UP, RIGHT, DOWN
 
@@ -27,6 +28,29 @@ iterator enumerate[T](s: seq[T]): tuple[i: int, v: T] =
     for v in s:
         yield (i, v)
         i += 1
+
+proc drawGameBorder(w: RenderWindow) =
+    var
+        rV = newRectangleShape(vec2(BOARD_PIECE_SIZE, BOARD_Y + BOARD_PIECE_SIZE))
+        rH = newRectangleShape(vec2(BOARD_X + BOARD_PIECE_SIZE, BOARD_PIECE_SIZE))
+
+    rV.fillColor = WALL_COLOR
+    rH.fillColor = WALL_COLOR
+
+    rV.position = vec2(0, 0)
+    rH.position = vec2(0, 0)
+
+    w.draw(rV)
+    w.draw(rH)
+
+    rV.position = vec2(BOARD_X, 0)
+    rH.position = vec2(0, BOARD_Y)
+
+    w.draw(rV)
+    w.draw(rH)
+
+    rV.destroy()
+    rH.destroy()
 
 proc drawSnake(w: RenderWindow, s: Snake) =
     for i, p in enumerate(s):
@@ -45,28 +69,53 @@ proc drawApple(w: RenderWindow, p: Vector2i) =
     w.draw(r)
     r.destroy()
 
-proc drawGameBorder(w: RenderWindow) =
+proc randomBoardPosition(): Vector2i = 
+    return vec2(
+        rand(int(BOARD_X / BOARD_PIECE_SIZE)) * BOARD_PIECE_SIZE + int(BOARD_PIECE_SIZE / 2),
+        rand(int(BOARD_Y / BOARD_PIECE_SIZE)) * BOARD_PIECE_SIZE + int(BOARD_PIECE_SIZE / 2)
+    )
+
+proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i): tuple[success: bool, apple: Vector2i] =
+    let head = s[0]
     var
-        rV = newRectangleShape(vec2(BOARD_PIECE_SIZE, BOARD_Y))
-        rH = newRectangleShape(vec2(BOARD_X, BOARD_PIECE_SIZE))
+        nextPoint: Vector2i
+        success = false
+        apple = a
+    
+    # figure out what the next point will be based off the head
+    case d:
+    of SnakeDirection.LEFT: nextPoint = vec2(head.x-BOARD_PIECE_SIZE, head.y)
+    of SnakeDirection.UP: nextPoint = vec2(head.x, head.y-BOARD_PIECE_SIZE)
+    of SnakeDirection.RIGHT: nextPoint = vec2(head.x+BOARD_PIECE_SIZE, head.y)
+    of SnakeDirection.DOWN: nextPoint = vec2(head.x, head.y+BOARD_PIECE_SIZE)
 
-    rV.fillColor = WALL_COLOR
-    rH.fillColor = WALL_COLOR
+    if nextPoint != a:
+        s.delete(s.high)
+        
+    success = not (
+        nextPoint.x < BOARD_PIECE_SIZE or
+        nextPoint.x > BOARD_X or
+        nextPoint.y < BOARD_PIECE_SIZE or
+        nextPoint.y > BOARD_Y or
+        nextPoint in s
+    )
 
-    rV.position = vec2(0, 0)
-    rH.position = vec2(0, 0)
+    # move head of snake
+    s.insert(nextPoint, 0)
 
-    w.draw(rV)
-    w.draw(rH)
+    # check + update apple
+    while (
+        apple == head or
+        apple.x < BOARD_PIECE_SIZE or
+        apple.x > BOARD_X - BOARD_PIECE_SIZE or
+        apple.y < BOARD_PIECE_SIZE or
+        apple.y > BOARD_Y - BOARD_PIECE_SIZE or
+        apple in s
+    ):
+        apple = randomBoardPosition()
 
-    rV.position = vec2(0, BOARD_Y)
-    rH.position = vec2(BOARD_X, 0)
-
-    w.draw(rV)
-    w.draw(rH)
-
-    rV.destroy()
-    rH.destroy()
+    return (success, apple)
+    
 
 let
     ctxSettings = ContextSettings(antialiasingLevel: 16)
@@ -76,10 +125,11 @@ window.verticalSyncEnabled = true
 
 var
     event: Event
-    board: Board
-    snake: Snake
+    snake: Snake = @[vec2(int(BOARD_X / 2), int(BOARD_Y / 2))]
+    lastDirection: SnakeDirection
     direction: SnakeDirection
-    apple: Vector2i = vec2(BOARD_X - 5, BOARD_Y - 5)
+    apple: Vector2i = vec2(snake[0].x + BOARD_PIECE_SIZE * 2, snake[0].y + BOARD_PIECE_SIZE * 2)
+    success: bool
 
 while window.open:
     if window.pollEvent(event):
@@ -99,11 +149,25 @@ while window.open:
             else: discard
         else: discard
 
+    let r = updateGame(snake, direction, lastDirection, apple)
+    success = r.success
+    apple = r.apple
+
     window.clear(BACKGROUND_COLOR)
     window.drawGameBorder()
     window.drawSnake(snake)
     window.drawApple(apple)
     window.display()
 
+    window.title = &"Snake [Score: {snake.len}]"
+    lastDirection = direction
+
+    if not success:
+        window.title = &"Snake [Score: {snake.len}] GAME OVER"
+        sleep(3000)
+        window.close()
+        break
+
+    os.sleep(100)
 
 window.destroy()
