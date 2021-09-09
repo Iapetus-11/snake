@@ -2,12 +2,12 @@ import std/[random, os, strformat]
 
 randomize()
 
-# jank to extract the required dll on startup
-when defined windows:
-    const CSFML_GRAPHICS_2_DLL_COMP = slurp("../csfml-graphics-2.dll")
+block: # jank to extract the required dll on startup
+    when defined windows:
+        const CSFML_GRAPHICS_2_DLL_COMP = slurp("../csfml-graphics-2.dll")
 
-if not fileExists("csfml-graphics-2.dll"):
-    writeFile("csfml-graphics-2.dll", CSFML_GRAPHICS_2_DLL_COMP)
+    if not fileExists("csfml-graphics-2.dll"):
+        writeFile("csfml-graphics-2.dll", CSFML_GRAPHICS_2_DLL_COMP)
 
 import csfml
 
