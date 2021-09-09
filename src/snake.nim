@@ -94,9 +94,9 @@ proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i
         
     success = not (
         nextPoint.x < BOARD_PIECE_SIZE or
-        nextPoint.x > BOARD_X or
+        nextPoint.x > BOARD_X - BOARD_PIECE_SIZE or
         nextPoint.y < BOARD_PIECE_SIZE or
-        nextPoint.y > BOARD_Y or
+        nextPoint.y > BOARD_Y - BOARD_PIECE_SIZE or
         nextPoint in s
     )
 
@@ -128,7 +128,7 @@ var
     snake: Snake = @[vec2(int(BOARD_X / 2), int(BOARD_Y / 2))]
     lastDirection: SnakeDirection
     direction: SnakeDirection
-    apple: Vector2i = vec2(snake[0].x + BOARD_PIECE_SIZE * 2, snake[0].y + BOARD_PIECE_SIZE * 2)
+    apple: Vector2i = vec2(snake[0].x - BOARD_PIECE_SIZE * 8, snake[0].y)
     success: bool
 
 while window.open:
@@ -164,7 +164,7 @@ while window.open:
 
     if not success:
         window.title = &"Snake [Score: {snake.len}] GAME OVER"
-        sleep(3000)
+        sleep(2500)
         window.close()
         break
 
