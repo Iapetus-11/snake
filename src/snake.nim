@@ -69,19 +69,20 @@ proc drawApple(w: RenderWindow, p: Vector2i) =
     w.draw(r)
     r.destroy()
 
-proc randomBoardPosition(): Vector2i = 
+proc randomBoardPosition(): Vector2i =
     return vec2(
         rand(int(BOARD_X / BOARD_PIECE_SIZE)) * BOARD_PIECE_SIZE + int(BOARD_PIECE_SIZE / 2),
         rand(int(BOARD_Y / BOARD_PIECE_SIZE)) * BOARD_PIECE_SIZE + int(BOARD_PIECE_SIZE / 2)
     )
 
-proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i): tuple[success: bool, apple: Vector2i] =
+proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i): tuple[
+        success: bool, apple: Vector2i] =
     let head = s[0]
     var
         nextPoint: Vector2i
         success = false
         apple = a
-    
+
     # figure out what the next point will be based off the head
     case d:
     of SnakeDirection.LEFT: nextPoint = vec2(head.x-BOARD_PIECE_SIZE, head.y)
@@ -91,7 +92,7 @@ proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i
 
     if nextPoint != a:
         s.delete(s.high)
-        
+
     success = not (
         nextPoint.x < BOARD_PIECE_SIZE or
         nextPoint.x > BOARD_X - BOARD_PIECE_SIZE or
@@ -115,7 +116,7 @@ proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i
         apple = randomBoardPosition()
 
     return (success, apple)
-    
+
 
 let
     ctxSettings = ContextSettings(antialiasingLevel: 16)
