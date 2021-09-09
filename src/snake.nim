@@ -79,6 +79,6 @@ while window.open:
     window.drawSnake(snake)
     window.drawApple(apple)
     window.display()
-    
+
 
 window.destroy()
