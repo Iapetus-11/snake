@@ -12,3 +12,4 @@ bin           = @["snake"]
 
 requires "nim >= 1.4.8"
 requires "csfml >= 2.5.0"
+# requires "zippy >= 0.6.2"
