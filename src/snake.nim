@@ -2,14 +2,14 @@ import std/[random, os, strformat]
 
 randomize()
 
-# const ROBOTO_FONT_TTF = cstring(slurp("../Roboto-Black.ttf"))
+const ROBOTO_FONT_TTF = cstring(slurp("../Roboto-Black.ttf"))
 
-# block: # jank to extract the required dll on startup
-#     when defined windows:
-#         const CSFML_GRAPHICS_2_DLL = slurp("../csfml-graphics-2.dll")
+block: # jank to extract the required dll on startup
+    when defined windows:
+        const CSFML_GRAPHICS_2_DLL = slurp("../csfml-graphics-2.dll")
 
-#     if not fileExists("csfml-graphics-2.dll"):
-#         writeFile("csfml-graphics-2.dll", CSFML_GRAPHICS_2_DLL)
+    if not fileExists("csfml-graphics-2.dll"):
+        writeFile("csfml-graphics-2.dll", CSFML_GRAPHICS_2_DLL)
 
 import csfml
 
@@ -132,8 +132,8 @@ proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i
 let
     ctxSettings = ContextSettings(antialiasingLevel: 16)
     window = newRenderWindow(videoMode(WINDOW_X, WINDOW_Y), "Snake", settings = ctxSettings)
-    # roboto = newFont(pointer ROBOTO_FONT_TTF, ROBOTO_FONT_TTF.len)
-    roboto = newFont("Roboto-Black.ttf")
+    roboto = newFont(pointer ROBOTO_FONT_TTF, ROBOTO_FONT_TTF.len)
+    # roboto = newFont("Roboto-Black.ttf")
 
 window.verticalSyncEnabled = true
 
