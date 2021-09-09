@@ -2,7 +2,7 @@ import std/[random, os, strformat]
 
 randomize()
 
-# jank to extract the required dll on startup 
+# jank to extract the required dll on startup
 when defined windows:
     const CSFML_GRAPHICS_2_DLL = slurp("../csfml-graphics-2.dll")
 
