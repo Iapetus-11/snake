@@ -1,18 +1,24 @@
+import std/random
 import csfml
+
+randomize()
 
 const
     WINDOW_X: cint = 800
     WINDOW_Y: cint = 600
-    BOARD_X = 75
-    BOARD_Y = 50
+    BOARD_X = 800
+    BOARD_Y = 600
+    BOARD_PIECE_SIZE = 10
     BACKGROUND_COLOR = color(30, 30, 40)
     SNAKE_HEAD_COLOR = color(30, 225, 75)
     SNAKE_BODY_COLOR = color(20, 200, 50)
+    APPLE_COLOR = color(255, 20, 20)
 
 type
-    Point = tuple[x: int, y: int]
-    Snake = seq[Point]
+    Snake = seq[Vector2i]
     Board = array[BOARD_X, array[BOARD_Y, int]]
+    SnakeDirection = enum
+        LEFT, UP, RIGHT, DOWN
 
 iterator enumerate[T](s: seq[T]): tuple[i: int, v: T] =
     var i = 0
@@ -22,10 +28,21 @@ iterator enumerate[T](s: seq[T]): tuple[i: int, v: T] =
         i += 1
 
 proc drawSnake(w: RenderWindow, s: Snake) =
-    var vertices = newVertexArray(PrimitiveType.Quads, s.len)
-
     for i, p in enumerate(s):
-        vertices[i] = newRectangleShape(vec2(0, 0))
+        var r = newRectangleShape(vec2(BOARD_PIECE_SIZE, BOARD_PIECE_SIZE))
+        r.position = p
+        r.fillColor = if i == 0: SNAKE_HEAD_COLOR else: SNAKE_BODY_COLOR
+
+        w.draw(r)
+        r.destroy()
+
+proc drawApple(w: RenderWindow, p: Vector2i) =
+    var r = newRectangleShape(vec2(BOARD_PIECE_SIZE, BOARD_PIECE_SIZE))
+    r.position = p
+    r.fillColor = APPLE_COLOR
+
+    w.draw(r)
+    r.destroy()
 
 let
     ctxSettings = ContextSettings(antialiasingLevel: 16)
@@ -37,6 +54,8 @@ var
     event: Event
     board: Board
     snake: Snake
+    direction: SnakeDirection
+    apple: Vector2i = vec2(BOARD_X - 5, BOARD_Y - 5)
 
 while window.open:
     if window.pollEvent(event):
@@ -45,14 +64,21 @@ while window.open:
             window.close()
             break
         of EventType.KeyPressed:
-            if event.key.code == KeyCode.Escape:
+            case event.key.code:
+            of KeyCode.Escape:
                 window.close()
                 break
-            else:
-                echo event.key.code
+            of KeyCode.A, KeyCode.Left: direction = SnakeDirection.LEFT
+            of KeyCode.W, KeyCode.Up: direction = SnakeDirection.UP
+            of KeyCode.D, KeyCode.Right: direction = SnakeDirection.RIGHT
+            of KeyCode.S, KeyCode.Down: direction = SnakeDirection.DOWN
+            else: discard
         else: discard
 
     window.clear(BACKGROUND_COLOR)
+    window.drawSnake(snake)
+    window.drawApple(apple)
     window.display()
+    
 
 window.destroy()
