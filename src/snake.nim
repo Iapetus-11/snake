@@ -9,7 +9,8 @@ const
     BOARD_X = 800
     BOARD_Y = 600
     BOARD_PIECE_SIZE = 10
-    BACKGROUND_COLOR = color(30, 30, 40)
+    BACKGROUND_COLOR = color(60, 60, 80)
+    WALL_COLOR = color(0, 0, 0)
     SNAKE_HEAD_COLOR = color(30, 225, 75)
     SNAKE_BODY_COLOR = color(20, 200, 50)
     APPLE_COLOR = color(255, 20, 20)
@@ -44,6 +45,29 @@ proc drawApple(w: RenderWindow, p: Vector2i) =
     w.draw(r)
     r.destroy()
 
+proc drawGameBorder(w: RenderWindow) =
+    var
+        rV = newRectangleShape(vec2(BOARD_PIECE_SIZE, BOARD_Y))
+        rH = newRectangleShape(vec2(BOARD_X, BOARD_PIECE_SIZE))
+
+    rV.fillColor = WALL_COLOR
+    rH.fillColor = WALL_COLOR
+
+    rV.position = vec2(0, 0)
+    rH.position = vec2(0, 0)
+
+    w.draw(rV)
+    w.draw(rH)
+
+    rV.position = vec2(0, BOARD_Y)
+    rH.position = vec2(BOARD_X, 0)
+
+    w.draw(rV)
+    w.draw(rH)
+
+    rV.destroy()
+    rH.destroy()
+
 let
     ctxSettings = ContextSettings(antialiasingLevel: 16)
     window = newRenderWindow(videoMode(WINDOW_X, WINDOW_Y), "Snake", settings = ctxSettings)
@@ -76,6 +100,7 @@ while window.open:
         else: discard
 
     window.clear(BACKGROUND_COLOR)
+    window.drawGameBorder()
     window.drawSnake(snake)
     window.drawApple(apple)
     window.display()
