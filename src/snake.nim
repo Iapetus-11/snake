@@ -2,12 +2,14 @@ import std/[random, os, strformat]
 
 randomize()
 
-block: # jank to extract the required dll on startup
-    when defined windows:
-        const CSFML_GRAPHICS_2_DLL_COMP = slurp("../csfml-graphics-2.dll")
+# const ROBOTO_FONT_TTF = cstring(slurp("../Roboto-Black.ttf"))
 
-    if not fileExists("csfml-graphics-2.dll"):
-        writeFile("csfml-graphics-2.dll", CSFML_GRAPHICS_2_DLL_COMP)
+# block: # jank to extract the required dll on startup
+#     when defined windows:
+#         const CSFML_GRAPHICS_2_DLL = slurp("../csfml-graphics-2.dll")
+
+#     if not fileExists("csfml-graphics-2.dll"):
+#         writeFile("csfml-graphics-2.dll", CSFML_GRAPHICS_2_DLL)
 
 import csfml
 
@@ -130,6 +132,8 @@ proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i
 let
     ctxSettings = ContextSettings(antialiasingLevel: 16)
     window = newRenderWindow(videoMode(WINDOW_X, WINDOW_Y), "Snake", settings = ctxSettings)
+    # roboto = newFont(pointer ROBOTO_FONT_TTF, ROBOTO_FONT_TTF.len)
+    roboto = newFont("Roboto-Black.ttf")
 
 window.verticalSyncEnabled = true
 
@@ -177,14 +181,27 @@ while window.open:
     window.drawGameBorder()
     window.drawSnake(snake)
     window.drawApple(apple)
-    window.display()
 
     lastDirection = direction
 
     if direction == SnakeDirection.NONE:
         window.title = &"Snake [Score: {snake.len}] PAUSED"
+        let t = newText("PAUSED", roboto, 30)
+        t.position = vec2(WINDOW_X / 2 - t.localBounds.width / 2, 40)
+        t.fillColor = color(200, 200, 200)
+        window.draw(t)
+        t.destroy()
     else:
         window.title = &"Snake [Score: {snake.len}]"
+
+    if not success:
+        let t = newText("GAME OVER", roboto, 60)
+        t.position = vec2(WINDOW_X / 2 - t.localBounds.width / 2, WINDOW_Y / 2 - t.localBounds.height)
+        t.fillColor = color(255, 10, 10)
+        window.draw(t)
+        t.destroy()
+
+    window.display()
 
     if not success:
         window.title = &"Snake [Score: {snake.len}] GAME OVER"
