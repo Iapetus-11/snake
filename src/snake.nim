@@ -20,7 +20,7 @@ const
 type
     Snake = seq[Vector2i]
     SnakeDirection = enum
-        LEFT, UP, RIGHT, DOWN
+        NONE, LEFT, UP, RIGHT, DOWN
 
 iterator enumerate[T](s: seq[T]): tuple[i: int, v: T] =
     var i = 0
@@ -89,6 +89,8 @@ proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i
     of SnakeDirection.UP: nextPoint = vec2(head.x, head.y-BOARD_PIECE_SIZE)
     of SnakeDirection.RIGHT: nextPoint = vec2(head.x+BOARD_PIECE_SIZE, head.y)
     of SnakeDirection.DOWN: nextPoint = vec2(head.x, head.y+BOARD_PIECE_SIZE)
+    of SnakeDirection.NONE:
+        return (true, apple)
 
     if nextPoint != a:
         s.delete(s.high)
@@ -129,7 +131,7 @@ var
     snake: Snake = @[vec2(int(BOARD_X / 2), int(BOARD_Y / 2))]
     lastDirection: SnakeDirection
     direction: SnakeDirection
-    apple: Vector2i = vec2(snake[0].x - BOARD_PIECE_SIZE * 8, snake[0].y)
+    apple: Vector2i = vec2(snake[0].x - BOARD_PIECE_SIZE * 4, snake[0].y)
     success: bool
 
 while window.open:
@@ -147,6 +149,7 @@ while window.open:
             of KeyCode.W, KeyCode.Up: direction = SnakeDirection.UP
             of KeyCode.D, KeyCode.Right: direction = SnakeDirection.RIGHT
             of KeyCode.S, KeyCode.Down: direction = SnakeDirection.DOWN
+            of KeyCode.Space, KeyCode.P: direction = SnakeDirection.NONE
             else: discard
         else: discard
 
@@ -160,8 +163,12 @@ while window.open:
     window.drawApple(apple)
     window.display()
 
-    window.title = &"Snake [Score: {snake.len}]"
     lastDirection = direction
+
+    if direction == SnakeDirection.NONE:
+        window.title = &"Snake [Score: {snake.len}] PAUSED"
+    else:
+        window.title = &"Snake [Score: {snake.len}]"
 
     if not success:
         window.title = &"Snake [Score: {snake.len}] GAME OVER"
