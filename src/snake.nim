@@ -196,7 +196,8 @@ while window.open:
 
     if not success:
         let t = newText("GAME OVER", roboto, 60)
-        t.position = vec2(WINDOW_X / 2 - t.localBounds.width / 2, WINDOW_Y / 2 - t.localBounds.height)
+        t.position = vec2(WINDOW_X / 2 - t.localBounds.width / 2, WINDOW_Y / 2 -
+                t.localBounds.height)
         t.fillColor = color(255, 10, 10)
         window.draw(t)
         t.destroy()
