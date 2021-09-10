@@ -218,6 +218,8 @@ while window.open:
         window.title = &"Snake [Score: {score}]"
 
     if not success:
+        window.title = "GAME OVER | Press SPACE to start again!"
+
         var t = newText("GAME OVER", roboto, 60)
         t.position = vec2(WINDOW_X / 2 - t.localBounds.width / 2, WINDOW_Y / 2 -
                 t.localBounds.height - 20)
