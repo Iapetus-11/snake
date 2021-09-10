@@ -153,7 +153,6 @@ proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, f: var Frui
 
     return (success, scoreDiff)
 
-
 let
     ctxSettings = ContextSettings(antialiasingLevel: 16)
     window = newRenderWindow(videoMode(WINDOW_X, WINDOW_Y), "Snake", settings = ctxSettings)
@@ -215,7 +214,6 @@ while window.open:
         (direction == SnakeDirection.RIGHT and lastDirection == SnakeDirection.LEFT)
     ):
         direction = lastDirection
-
 
     let r = updateGame(snake, direction, lastDirection, fruit)
     success = r.success
