@@ -26,7 +26,7 @@ const
     WALL_COLOR = color(0, 0, 0)
     SNAKE_HEAD_COLOR = color(30, 225, 75)
     SNAKE_BODY_COLOR = color(20, 170, 50)
-    APPLE_COLOR = color(255, 20, 20)
+    APPLE_COLOR = color(255, 50, 50)
 
 type
     Snake = seq[Vector2i]
@@ -155,6 +155,7 @@ proc setupGame() =
     lastDirection = SnakeDirection.NONE
     direction = SnakeDirection.NONE
     apple = vec2(snake[0].x - BOARD_PIECE_SIZE * 4, snake[0].y)
+    success = true
     score = 0
 
 setupGame()
@@ -174,9 +175,16 @@ while window.open:
             of KeyCode.W, KeyCode.Up: direction = SnakeDirection.UP
             of KeyCode.D, KeyCode.Right: direction = SnakeDirection.RIGHT
             of KeyCode.S, KeyCode.Down: direction = SnakeDirection.DOWN
-            of KeyCode.Space, KeyCode.P: direction = SnakeDirection.NONE
+            of KeyCode.Space, KeyCode.P:
+                if not success:
+                    setupGame()
+                else:
+                    direction = SnakeDirection.NONE
             else: discard
         else: discard
+
+    if not success:
+        continue
 
     if (
         (direction == SnakeDirection.UP and lastDirection == SnakeDirection.DOWN) or
@@ -210,20 +218,21 @@ while window.open:
         window.title = &"Snake [Score: {score}]"
 
     if not success:
-        let t = newText("GAME OVER", roboto, 60)
+        var t = newText("GAME OVER", roboto, 60)
         t.position = vec2(WINDOW_X / 2 - t.localBounds.width / 2, WINDOW_Y / 2 -
-                t.localBounds.height)
+                t.localBounds.height - 20)
         t.fillColor = color(255, 10, 10)
         window.draw(t)
+        
+        t = newText(&"Score: {score}", roboto, 30)
+        t.position = vec2(WINDOW_X / 2 - t.localBounds.width / 2, WINDOW_Y / 2 -
+                t.localBounds.height + 20)
+        t.fillColor = color(200, 200, 200)
+        window.draw(t)
+
         t.destroy()
 
     window.display()
-
-    if not success:
-        sleep(seconds(3))
-        # ensures there's no keys pressed left in the queue while the window is sleeping
-        while window.pollEvent(event): discard
-        setupGame()
 
     sleep(milliseconds(MOVE_DELAY))
 
