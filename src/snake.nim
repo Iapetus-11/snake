@@ -1,20 +1,19 @@
-import std/[os, random, strformat]
+import std/[random, strformat]
 
 randomize()
 
 const ROBOTO_FONT_TTF = cstring(slurp("../Roboto-Black.ttf"))
 
-block: # jank to extract the required dll on startup
-    when defined windows:
-        const
-            CSFML_GRAPHICS_2_DLL = slurp("../csfml-graphics-2.dll")
-            CSFML_SYSTEM_2_DLL = slurp("../csfml-system-2.dll")
+# jank to extract the required dll on startup
+# const
+#     CSFML_GRAPHICS_2_DLL = slurp("../csfml-graphics-2.dll")
+#     CSFML_SYSTEM_2_DLL = slurp("../csfml-system-2.dll")
 
-    if not fileExists("csfml-graphics-2.dll"):
-        writeFile("csfml-graphics-2.dll", CSFML_GRAPHICS_2_DLL)
+# if not fileExists("csfml-graphics-2.dll"):
+#     writeFile("csfml-graphics-2.dll", CSFML_GRAPHICS_2_DLL)
 
-    if not fileExists("csfml-system-2.dll"):
-        writeFile("csfml-system-2.dll", CSFML_SYSTEM_2_DLL)
+# if not fileExists("csfml-system-2.dll"):
+#     writeFile("csfml-system-2.dll", CSFML_SYSTEM_2_DLL)
 
 import csfml
 
