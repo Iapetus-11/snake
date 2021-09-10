@@ -225,7 +225,7 @@ while window.open:
                 t.localBounds.height - 20)
         t.fillColor = color(255, 10, 10)
         window.draw(t)
-        
+
         t = newText(&"Score: {score}", roboto, 30)
         t.position = vec2(WINDOW_X / 2 - t.localBounds.width / 2, WINDOW_Y / 2 -
                 t.localBounds.height + 20)
