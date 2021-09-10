@@ -1,4 +1,4 @@
-import std/[random, os, strformat]
+import std/[os, random, strformat]
 
 randomize()
 
@@ -212,10 +212,10 @@ while window.open:
 
     if not success:
         window.title = &"Snake [Score: {score}] GAME OVER"
-        sleep(2500)
+        sleep(milliseconds(2500))
         window.close()
         break
 
-    os.sleep(MOVE_DELAY)
+    sleep(milliseconds(MOVE_DELAY))
 
 window.destroy()
