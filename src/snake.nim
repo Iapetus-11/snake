@@ -143,12 +143,21 @@ window.verticalSyncEnabled = true
 
 var
     event: Event
-    snake: Snake = @[vec2(int(BOARD_X / 2), int(BOARD_Y / 2))]
+    snake: Snake
     lastDirection: SnakeDirection
     direction: SnakeDirection
-    apple: Vector2i = vec2(snake[0].x - BOARD_PIECE_SIZE * 4, snake[0].y)
+    apple: Vector2i
     success: bool
+    score: int
+
+proc setupGame() =
+    snake = @[vec2(int(BOARD_X / 2), int(BOARD_Y / 2))]
+    lastDirection = SnakeDirection.NONE
+    direction = SnakeDirection.NONE
+    apple = vec2(snake[0].x - BOARD_PIECE_SIZE * 4, snake[0].y)
     score = 0
+
+setupGame()
 
 while window.open:
     if window.pollEvent(event):
@@ -211,10 +220,10 @@ while window.open:
     window.display()
 
     if not success:
-        window.title = &"Snake [Score: {score}] GAME OVER"
-        sleep(milliseconds(2500))
-        window.close()
-        break
+        sleep(seconds(3))
+        # ensures there's no keys pressed left in the queue while the window is sleeping
+        while window.pollEvent(event): discard
+        setupGame()
 
     sleep(milliseconds(MOVE_DELAY))
 
