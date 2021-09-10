@@ -27,11 +27,20 @@ const
     SNAKE_HEAD_COLOR = color(30, 225, 75)
     SNAKE_BODY_COLOR = color(20, 170, 50)
     APPLE_COLOR = color(255, 50, 50)
+    BLUEBERRY_COLOR = color(80, 80, 255)
 
 type
     Snake = seq[Vector2i]
+
     SnakeDirection = enum
         NONE, LEFT, UP, RIGHT, DOWN
+
+    FruitType = enum
+        APPLE, BLUEBERRY
+
+    Fruit = ref object
+        pos: Vector2i
+        fruitType: FruitType
 
 iterator enumerate[T](s: seq[T]): tuple[i: int, v: T] =
     var i = 0
@@ -72,10 +81,12 @@ proc drawSnake(w: RenderWindow, s: Snake) =
         w.draw(r)
         r.destroy()
 
-proc drawApple(w: RenderWindow, p: Vector2i) =
+proc drawFruit(w: RenderWindow, f: Fruit) =
     var r = newRectangleShape(vec2(BOARD_PIECE_SIZE, BOARD_PIECE_SIZE))
-    r.position = p
-    r.fillColor = APPLE_COLOR
+    r.position = f.pos
+    r.fillColor = case f.fruitType:
+        of FruitType.APPLE: APPLE_COLOR
+        of FruitType.BLUEBERRY: BLUEBERRY_COLOR
 
     w.draw(r)
     r.destroy()
@@ -86,25 +97,30 @@ proc randomBoardPosition(): Vector2i =
         rand(int(BOARD_Y / BOARD_PIECE_SIZE)) * BOARD_PIECE_SIZE + int(BOARD_PIECE_SIZE / 2)
     )
 
-proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i): tuple[
-        success: bool, apple: Vector2i, scoreDiff: int] =
+proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, f: var Fruit): tuple[
+        success: bool, scoreDiff: int] =
     let head = s[0]
     var
         nextPoint: Vector2i
         success = false
-        apple = a
         scoreDiff = 0
 
     # figure out what the next point will be based off the head
     case d:
-    of SnakeDirection.LEFT: nextPoint = vec2(head.x-BOARD_PIECE_SIZE, head.y)
-    of SnakeDirection.UP: nextPoint = vec2(head.x, head.y-BOARD_PIECE_SIZE)
-    of SnakeDirection.RIGHT: nextPoint = vec2(head.x+BOARD_PIECE_SIZE, head.y)
-    of SnakeDirection.DOWN: nextPoint = vec2(head.x, head.y+BOARD_PIECE_SIZE)
-    of SnakeDirection.NONE: return (true, apple, 0)
+    of SnakeDirection.LEFT: nextPoint = vec2(head.x - BOARD_PIECE_SIZE, head.y)
+    of SnakeDirection.UP: nextPoint = vec2(head.x, head.y - BOARD_PIECE_SIZE)
+    of SnakeDirection.RIGHT: nextPoint = vec2(head.x + BOARD_PIECE_SIZE, head.y)
+    of SnakeDirection.DOWN: nextPoint = vec2(head.x, head.y + BOARD_PIECE_SIZE)
+    of SnakeDirection.NONE: return (true, 0)
 
-    if nextPoint == a:
+    if nextPoint == f.pos:
         scoreDiff += 1
+
+        if f.fruitType == FruitType.BLUEBERRY:
+            scoreDiff += 4
+            let last = s[s.high]
+            for i in 0..4:
+                s.add(vec2(last.x, last.y))
     else:
         s.delete(s.high)
 
@@ -121,16 +137,21 @@ proc updateGame(s: var Snake, d: SnakeDirection, ld: SnakeDirection, a: Vector2i
 
     # check + update apple
     while (
-        apple == head or
-        apple.x < BOARD_PIECE_SIZE or
-        apple.x > BOARD_X - BOARD_PIECE_SIZE or
-        apple.y < BOARD_PIECE_SIZE or
-        apple.y > BOARD_Y - BOARD_PIECE_SIZE or
-        apple in s
+        f.pos == head or
+        f.pos.x < BOARD_PIECE_SIZE or
+        f.pos.x > BOARD_X - BOARD_PIECE_SIZE or
+        f.pos.y < BOARD_PIECE_SIZE or
+        f.pos.y > BOARD_Y - BOARD_PIECE_SIZE or
+        f.pos in s
     ):
-        apple = randomBoardPosition()
+        f.pos = randomBoardPosition()
 
-    return (success, apple, scoreDiff)
+        if rand(20) == 10:
+            f.fruitType = FruitType.BLUEBERRY
+        else:
+            f.fruitType = FruitType.APPLE
+
+    return (success, scoreDiff)
 
 
 let
@@ -146,17 +167,17 @@ var
     snake: Snake
     lastDirection: SnakeDirection
     direction: SnakeDirection
-    apple: Vector2i
     success: bool
     score: int
+    fruit: Fruit
 
 proc setupGame() =
     snake = @[vec2(int(BOARD_X / 2), int(BOARD_Y / 2))]
     lastDirection = SnakeDirection.NONE
     direction = SnakeDirection.NONE
-    apple = vec2(snake[0].x - BOARD_PIECE_SIZE * 4, snake[0].y)
     success = true
     score = 0
+    fruit = Fruit(pos: vec2(snake[0].x - BOARD_PIECE_SIZE * 4, snake[0].y), fruitType: FruitType.APPLE)
 
 setupGame()
 
@@ -195,15 +216,14 @@ while window.open:
         direction = lastDirection
 
 
-    let r = updateGame(snake, direction, lastDirection, apple)
+    let r = updateGame(snake, direction, lastDirection, fruit)
     success = r.success
-    apple = r.apple
     score += r.scoreDiff
 
     window.clear(BACKGROUND_COLOR)
     window.drawGameBorder()
     window.drawSnake(snake)
-    window.drawApple(apple)
+    window.drawFruit(fruit)
 
     lastDirection = direction
 
