@@ -177,7 +177,8 @@ proc setupGame() =
     direction = SnakeDirection.NONE
     success = true
     score = 0
-    fruit = Fruit(pos: vec2(snake[0].x - BOARD_PIECE_SIZE * 4, snake[0].y), fruitType: FruitType.APPLE)
+    fruit = Fruit(pos: vec2(snake[0].x - BOARD_PIECE_SIZE * 4, snake[0].y),
+            fruitType: FruitType.APPLE)
 
 setupGame()
 
