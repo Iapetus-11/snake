@@ -1,0 +1,26 @@
+Multiplayer Snake
+- Modes:
+    - net play and local
+    - VS - players can block each other off with their bodies and compete for fruit
+    - COOP - same as VS except they can't block each other off (transparent to each other)
+
+
+- Over TCP
+- peer to peer
+- JSON packets
+
+{
+    "p": 123, # packet type id
+    "i": 123, # packet id
+    "d": {} # data
+}
+
+- packets for movement, end/start game, disconnect
+- movement of enemy is also played out on local
+- if we have problems with de-syncing, we can instead of sending a movement
+    packet, we can send the entire snake coord seq
+
+- Another option would to be have dedicated servers, this would increase the 
+    lag for LAN servers, but might reduce the lag for over-www play because
+    each client would only have to connect to the server.
+- dedicated servers would also reduce hacking but who tf would hack snake bruh
