@@ -1,4 +1,4 @@
-import std/[random, strformat]
+import std/[random, strformat, times]
 
 randomize()
 
@@ -186,6 +186,8 @@ proc setupGame() =
 setupGame()
 
 while window.open:
+    let start = getTime()
+    
     if window.pollEvent(event):
         case event.kind:
         of EventType.Closed:
@@ -259,6 +261,6 @@ while window.open:
 
     window.display()
 
-    sleep(milliseconds(MOVE_DELAY))
+    sleep(milliseconds(MOVE_DELAY + (start - getTime()).inMilliseconds.int32))
 
 window.destroy()
