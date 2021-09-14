@@ -187,7 +187,7 @@ setupGame()
 
 while window.open:
     let start = getTime()
-    
+
     if window.pollEvent(event):
         case event.kind:
         of EventType.Closed:
