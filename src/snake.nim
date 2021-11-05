@@ -20,7 +20,7 @@ import csfml
 const
     WINDOW_X: cint = 800
     WINDOW_Y: cint = 600
-    BOARD_PIECE_SIZE = 20 # must be a factor of both WINDOW_X and WINDOW_Y
+    BOARD_PIECE_SIZE = 20 # must be an even factor of both WINDOW_X and WINDOW_Y
     MOVE_DELAY = 80
     # BOARD_X = int(int(WINDOW_X) / BOARD_PIECE_SIZE)
     # BOARD_Y = int(int(WINDOW_Y) / BOARD_PIECE_SIZE)
